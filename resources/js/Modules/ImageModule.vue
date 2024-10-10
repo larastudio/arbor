@@ -1,17 +1,17 @@
 <template>
-  <img :src="src" :style="{ top: `${y}px`, left: `${x}px`, position: 'absolute' }" />
+  <img :src="src" alt="module-image" class="image-module" />
 </template>
 
 <script setup>
 defineProps({
-  src: String,
-  x: Number,
-  y: Number
+  src: String
 });
 </script>
 
 <style scoped>
-img {
-  position: absolute;
+.image-module {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensure the image fills the space while maintaining its aspect ratio */
 }
 </style>

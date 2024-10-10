@@ -1,22 +1,26 @@
 <template>
-    <div :style="{ top: `${y}px`, left: `${x}px`, position: 'absolute' }">
+    <div class="text-module">
       {{ text }}
     </div>
   </template>
   
   <script setup>
   defineProps({
-    text: String,
-    x: Number,
-    y: Number
+    text: String
   });
   </script>
   
   <style scoped>
-  div {
+  .text-module {
     font-size: 16px;
     color: #333;
-    position: absolute;
+    /* Ensure text fills the entire module area */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
   </style>
   

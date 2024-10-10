@@ -13,11 +13,16 @@
 		  width: `${module.props.width}px`, 
 		  height: `${module.props.height}px`,
 		  position: 'absolute', 
-		  border: '1px solid red'
+		  border: '1px solid red',
+		  overflow: 'hidden'
 		}"
 	  >
-		<!-- Dynamically render the module component -->
-		<component :is="module.component" v-bind="module.props" @update:data="updateModuleData(module.id, $event)" />
+		<!-- Dynamically render the module component, without x and y -->
+		<component 
+		  :is="module.component" 
+		  v-bind="getFilteredProps(module.props)" 
+		  @update:data="updateModuleData(module.id, $event)" 
+		/>
   
 		<!-- Resizing handles -->
 		<div class="resize-handle" @mousedown="startResize($event, module)"></div>
@@ -77,6 +82,12 @@
 	}
   };
   
+  // Filter out x and y from props before passing to component
+  const getFilteredProps = (props) => {
+	const { x, y, ...rest } = props;
+	return rest;
+  };
+  
   // Function to handle updating module data
   const updateModuleData = (id, newData) => {
 	const module = modules.value.find((m) => m.id === id);
@@ -92,7 +103,7 @@
   const startResize = (event, module) => {
 	resizingModule = module;
 	initialMousePosition = { x: event.pageX, y: event.pageY };
-	
+  
 	window.addEventListener('mousemove', resizeModule);
 	window.addEventListener('mouseup', stopResize);
   };
@@ -115,6 +126,7 @@
 	resizingModule = null;
   };
   </script>
+  
   
   <style scoped>
   .canvas {
