@@ -1,16 +1,17 @@
 <template>
-  <img :src="src" alt="Image Module" />
+  <img :src="src" :style="{ top: `${y}px`, left: `${x}px`, position: 'absolute' }" />
 </template>
 
 <script setup>
 defineProps({
-  src: String
+  src: String,
+  x: Number,
+  y: Number
 });
 </script>
 
 <style scoped>
 img {
-  width: 100%;
-  height: auto;
+  position: absolute;
 }
 </style>
