@@ -17,23 +17,22 @@
 		  overflow: 'hidden'
 		}"
 	  >
-		<!-- Dynamically render the module component -->
 		<component 
 		  :is="module.component" 
 		  v-bind="getFilteredProps(module.props)" 
 		  @update:data="updateModuleData(module.id, $event)" 
 		/>
   
-		<!-- Resizing handles -->
 		<div class="resize-handle" @mousedown="startResize($event, module)"></div>
 	  </div>
 	</div>
-  </template>
+  </template>  
   
   <script setup>
+  import axios from 'axios';
   import { onMounted, onBeforeUnmount } from 'vue';
   import { modules, addModule, getFilteredProps, startResize, updateModuleData } from '../classes/Module';
-  
+
   // Prevent default drag/drop behavior
   const blockEvent = (event) => {
 	event.preventDefault();
@@ -48,6 +47,12 @@
 	  try {
 		const moduleData = JSON.parse(data);
 		const canvasRect = event.target.getBoundingClientRect();
+		// Log canvas and event coordinates for comparison
+		console.log('Canvas rect:', canvasRect);
+		console.log('event.pageX:', event.pageX, 'event.pageY:', event.pageY);
+		console.log('Calculated X:', event.pageX - canvasRect.left);
+		console.log('Calculated Y:', event.pageY - canvasRect.top);
+		console.log('Drop target:', event.target); // Ensure the target is the canvas
 		addModule(moduleData, canvasRect, event);
 	  } catch (error) {
 		console.error('Error parsing dropped data:', error);
@@ -68,7 +73,11 @@
   .module {
 	position: absolute;
 	border: 1px solid red; /* For visibility */
-  }
+	padding: 0;
+	margin: 0;  /* Ensure no margin */
+	box-sizing: border-box; /* Include border in width/height calculation */
+}
+
   
   /* Resizing handle styles */
   .resize-handle {
