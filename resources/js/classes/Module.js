@@ -1,12 +1,22 @@
 import { ref, markRaw } from 'vue';
-import ImageModule from '../Modules/ImageModule.vue';
-import TextModule from '../Modules/TextModule.vue';
 
-// Component registry to resolve component names
-const componentRegistry = {
-  'ImageModule': markRaw(ImageModule),
-  'TextModule': markRaw(TextModule)
+// Dynamically import all Vue components from the Modules directory using Vite's import.meta.glob
+const modulesContext = import.meta.glob('../Modules/*.vue');
+
+// Component registry
+const componentRegistry = {};
+
+// Function to register components dynamically
+const registerModules = async () => {
+  for (const path in modulesContext) {
+    const module = await modulesContext[path]();
+    const componentName = path.split('/').pop().replace('.vue', '');
+    componentRegistry[componentName] = markRaw(module.default || module);
+  }
 };
+
+// Call the register function to load components
+registerModules();
 
 // Store for module state
 export const modules = ref([]);
