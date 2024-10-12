@@ -1,5 +1,9 @@
 import axios from 'axios';
 import { ref, markRaw } from 'vue';
+import { useToast } from 'vue-toastification';  // Import useToast
+
+// Use Toast Notifications
+const toast = useToast();
 
 // Dynamically import all Vue components from the Modules directory using Vite's import.meta.glob
 const modulesContext = import.meta.glob('../Modules/*.vue');
@@ -24,20 +28,19 @@ export const modules = ref([]);
 
 // Save modules to the backend
 export const saveModules = async () => {
-    try {
-        // Log the modules before sending
-        console.log('Modules to save:', modules.value);
+  try {
+      // Send the current modules data to the backend
+      const response = await axios.post('/save-modules', { modules: modules.value });
 
-        const response = await axios.post('/save-modules', { modules: modules.value });
-
-        if (response.status === 200) {
-            console.log('Modules saved successfully');
-        } else {
-            console.error('Failed to save modules');
-        }
-    } catch (error) {
-        console.error('Error saving modules:', error);
-    }
+      if (response.status === 200) {
+          toast.success('Modules saved successfully!');  // Show success notification
+      } else {
+          toast.error('Failed to save modules.');  // Show error notification
+      }
+  } catch (error) {
+      toast.error('Error saving modules.');  // Show error notification
+      console.error('Error saving modules:', error);
+  }
 };
 
 
