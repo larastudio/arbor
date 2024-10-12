@@ -1,7 +1,11 @@
 <template>
-    <div class="module" :style="computedStyle" @mousedown="startMove">
-      <component :is="module.component" v-bind="filteredProps" @update:data="updateModuleData" />
-      <div class="resize-handle" @mousedown="startResize"></div>
+    <div class="module-wrapper" :style="computedWrapperStyle">
+      <!-- Drag handle attached to the top-left but outside of the module -->
+      <div class="drag-handle" @mousedown="startMove"></div>
+      <div class="module" :style="computedStyle">
+        <component :is="module.component" v-bind="filteredProps" @update:data="updateModuleData" />
+        <div class="resize-handle" @mousedown="startResize"></div>
+      </div>
     </div>
   </template>
   
@@ -18,12 +22,15 @@
   
   const { module, canvasWidth, canvasHeight } = toRefs(props);
   
-  const computedStyle = computed(() => ({
+  const computedWrapperStyle = computed(() => ({
     top: `${module.value.props.y}px`,
     left: `${module.value.props.x}px`,
+    position: 'absolute'
+  }));
+  
+  const computedStyle = computed(() => ({
     width: `${module.value.props.width}px`,
     height: `${module.value.props.height}px`,
-    position: 'absolute',
     border: '1px solid red',
     overflow: 'hidden'
   }));
@@ -37,6 +44,7 @@
   let initialMousePosition = ref({ x: 0, y: 0 });
   
   const startMove = (event) => {
+    event.stopPropagation(); // Prevent any other elements from also triggering drag events
     movingModule.value = module.value;
     initialMousePosition.value = { x: event.pageX, y: event.pageY };
   
@@ -121,6 +129,20 @@
   </script>
   
   <style scoped>
+  .module-wrapper {
+    position: absolute;
+  }
+  
+  .drag-handle {
+    width: 20px;
+    height: 15px;
+    background-color: gray;
+    position: absolute;
+    top: -15px; /* Position the handle slightly outside the module */
+    left: 0px;
+    cursor: move;
+  }
+  
   .module {
     position: absolute;
     border: 1px solid red;
