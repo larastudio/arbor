@@ -9,12 +9,16 @@ import BuilderNav from '@/Components/BuilderNav.vue'; // Import BuilderNav compo
 <template>
    <Head title="Builder" />
    <AuthenticatedLayout>
-      <template #header>
-          <h2 class="font-semibold text-xl text-gray-800 leading-tight">Builder</h2>
-      </template>
-
-      <!-- Add BuilderNav here for the Save button -->
-      <BuilderNav />
+      <!-- Header is now directly within Canvas.vue, not via slot -->
+      <header class="bg-white shadow">
+          <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+              <div class="header-container">
+                  <h2 class="font-semibold text-xl text-gray-800 leading-tight">Builder</h2>
+				    <!-- Add BuilderNav here for the Save button -->
+                  <BuilderNav />
+              </div>
+          </div>
+      </header>
 
       <div class="builder">
         <Sidebar />
@@ -24,7 +28,12 @@ import BuilderNav from '@/Components/BuilderNav.vue'; // Import BuilderNav compo
   </template>
 
 <style scoped>
-.builder {
-    display: flex;
-}
+  .builder {
+      display: flex;
+  }
+  .header-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between; /* Optional: to push the BuilderNav to the right */
+  }
 </style>
