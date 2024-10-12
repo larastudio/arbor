@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CanvasController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -28,8 +29,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Route::get('/builder', function () {
-//     return Inertia::render('Builder');
-// });      
+Route::post('/save-modules', [CanvasController::class, 'save'])->name('canvas.save');
 
 require __DIR__.'/auth.php';

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import { ref, markRaw } from 'vue';
 
 // Dynamically import all Vue components from the Modules directory using Vite's import.meta.glob
@@ -15,14 +16,41 @@ const registerModules = async () => {
   }
 };
 
-// Call the register function to load components
-registerModules();
+// Ensure components are registered before any module can be added
+const modulesRegistered = registerModules();
 
 // Store for module state
 export const modules = ref([]);
 
+// Save modules to the backend
+export const saveModules = async () => {
+    try {
+        // Log the modules before sending
+        console.log('Modules to save:', modules.value);
+
+        const response = await axios.post('/save-modules', { modules: modules.value });
+
+        if (response.status === 200) {
+            console.log('Modules saved successfully');
+        } else {
+            console.error('Failed to save modules');
+        }
+    } catch (error) {
+        console.error('Error saving modules:', error);
+    }
+};
+
+
+// Function to generate a unique ID using Date.now() and a random component
+const generateUniqueId = () => {
+  return `module-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+};
+
 // Function to add a new module to the canvas
-export const addModule = (moduleData, canvasRect, event) => {
+export const addModule = async (moduleData, canvasRect, event) => {
+  // Ensure that modules are fully registered before adding new ones
+  await modulesRegistered;
+
   // Resolve the component from the registry using the component name
   const resolvedComponent = componentRegistry[moduleData.componentName];
 
@@ -30,6 +58,13 @@ export const addModule = (moduleData, canvasRect, event) => {
     console.error('Component not found in registry:', moduleData.componentName);
     return;
   }
+
+  // Generate a unique ID for each module when dropped onto the canvas
+  const uniqueId = generateUniqueId();
+  moduleData = { ...moduleData, id: uniqueId }; // Ensure a new object is created with a unique ID
+
+  // Log the newly generated unique ID
+  console.log('New Module ID:', uniqueId);
 
   // Compute drop position
   const x = event.pageX - canvasRect.left;
