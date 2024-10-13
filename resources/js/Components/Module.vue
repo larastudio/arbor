@@ -10,7 +10,7 @@
   </template>
   
   <script setup>
-  import { ref, computed, toRefs } from 'vue';
+  import { ref, computed, toRefs, onBeforeUnmount } from 'vue';
   
   const props = defineProps({
     module: Object,
@@ -40,13 +40,21 @@
     return rest;
   });
   
+  // State to track if the module is moving or resizing
   let movingModule = ref(null);
   let initialMousePosition = ref({ x: 0, y: 0 });
+  let isMoving = false;
+  
+  let resizingModule = ref(null);
+  let initialResizePosition = ref({ x: 0, y: 0 });
+  let originalDimensions = ref({ width: 0, height: 0 });
+  let isResizing = false;
   
   const startMove = (event) => {
     event.stopPropagation(); // Prevent any other elements from also triggering drag events
     movingModule.value = module.value;
     initialMousePosition.value = { x: event.pageX, y: event.pageY };
+    isMoving = true;
   
     window.addEventListener('mousemove', moveModule);
     window.addEventListener('mouseup', stopMove);
@@ -72,14 +80,13 @@
   };
   
   const stopMove = () => {
-    window.removeEventListener('mousemove', moveModule);
-    window.removeEventListener('mouseup', stopMove);
+    if (isMoving) {
+      window.removeEventListener('mousemove', moveModule);
+      window.removeEventListener('mouseup', stopMove);
+      isMoving = false;
+    }
     movingModule.value = null;
   };
-  
-  let resizingModule = ref(null);
-  let initialResizePosition = ref({ x: 0, y: 0 });
-  let originalDimensions = ref({ width: 0, height: 0 });
   
   const startResize = (event) => {
     event.stopPropagation();
@@ -89,6 +96,7 @@
       width: resizingModule.value.props.width,
       height: resizingModule.value.props.height
     };
+    isResizing = true;
   
     window.addEventListener('mousemove', resizeModule);
     window.addEventListener('mouseup', stopResize);
@@ -116,10 +124,25 @@
   };
   
   const stopResize = () => {
-    window.removeEventListener('mousemove', resizeModule);
-    window.removeEventListener('mouseup', stopResize);
+    if (isResizing) {
+      window.removeEventListener('mousemove', resizeModule);
+      window.removeEventListener('mouseup', stopResize);
+      isResizing = false;
+    }
     resizingModule.value = null;
   };
+  
+  // Cleanup event listeners when component is unmounted
+  onBeforeUnmount(() => {
+    if (isMoving) {
+      window.removeEventListener('mousemove', moveModule);
+      window.removeEventListener('mouseup', stopMove);
+    }
+    if (isResizing) {
+      window.removeEventListener('mousemove', resizeModule);
+      window.removeEventListener('mouseup', stopResize);
+    }
+  });
   
   // Emit the updated module data to the parent
   const updateModuleData = (newData) => {
@@ -139,7 +162,7 @@
     background-color: gray;
     position: absolute;
     top: -15px; /* Position the handle slightly outside the module */
-    left: 0px;
+    left: 0;
     cursor: move;
   }
   

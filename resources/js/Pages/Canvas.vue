@@ -42,11 +42,34 @@
 	}
   };
   
-  // Cleanup event listeners when component is unmounted
-  onBeforeUnmount(() => {
+  // Function to move module - must be defined before use
+  let movingModule = null;
+  let initialMousePosition = { x: 0, y: 0 };
+  
+  const moveModule = (event) => {
+	if (movingModule) {
+	  const deltaX = event.pageX - initialMousePosition.x;
+	  const deltaY = event.pageY - initialMousePosition.y;
+  
+	  let newX = movingModule.props.x + deltaX;
+	  let newY = movingModule.props.y + deltaY;
+  
+	  // Constrain within canvas boundaries
+	  newX = Math.max(0, Math.min(newX, canvasWidth.value - movingModule.props.width));
+	  newY = Math.max(0, Math.min(newY, canvasHeight.value - movingModule.props.height));
+  
+	  movingModule.props.x = newX;
+	  movingModule.props.y = newY;
+  
+	  initialMousePosition = { x: event.pageX, y: event.pageY };
+	}
+  };
+  
+  const stopMove = () => {
 	window.removeEventListener('mousemove', moveModule);
 	window.removeEventListener('mouseup', stopMove);
-  });
+	movingModule = null;
+  };
   
   // Update canvas dimensions when mounted
   onMounted(() => {
@@ -55,15 +78,29 @@
 	  canvasWidth.value = rect.width;
 	  canvasHeight.value = rect.height;
 	}
+  
+	// Optionally, update canvas dimensions on window resize
+	window.addEventListener('resize', handleResize);
   });
   
-  // Optionally, update canvas dimensions on window resize
-  window.addEventListener('resize', () => {
+  // Handle window resize event
+  const handleResize = () => {
 	if (canvas.value) {
 	  const rect = canvas.value.getBoundingClientRect();
 	  canvasWidth.value = rect.width;
 	  canvasHeight.value = rect.height;
 	}
+  };
+  
+  // Cleanup event listeners when component is unmounted
+  onBeforeUnmount(() => {
+	if (typeof moveModule === 'function') {
+	  window.removeEventListener('mousemove', moveModule);
+	}
+	if (typeof stopMove === 'function') {
+	  window.removeEventListener('mouseup', stopMove);
+	}
+	window.removeEventListener('resize', handleResize);
   });
   </script>
   
